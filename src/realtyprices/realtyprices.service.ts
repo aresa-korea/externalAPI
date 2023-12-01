@@ -155,7 +155,17 @@ export class RealtypricesService {
       bunList[1] || '0'
     }&apt_code=&dong_code=&ho_code=&past_yn=1&init_gbn=N&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=`;
     const bldList = await axios
-      .get(url)
+      .get(url, {
+        headers: {
+          Accept: 'application/json, text/javascript, */*; q=0.01',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+          Cookie:
+            'JSESSIONID=98C9D7205D5644160F8D1EE9BBBE216E; WMONID=5dfI7Achcqc; _gid=GA1.2.908011938.1701389998; _ga_41FNVSG4XV=GS1.1.1701389997.1.1.1701390630.60.0.0; _ga=GA1.2.732575048.1701389997',
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      })
       .then((response) => response.data.modelMap.list[0])
       .catch((error) => {
         console.log(error);
