@@ -160,9 +160,14 @@ export class RealtypricesService {
           Accept: 'application/json, text/javascript, */*; q=0.01',
           'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-          Cookie:
-            'JSESSIONID=98C9D7205D5644160F8D1EE9BBBE216E; WMONID=5dfI7Achcqc; _gid=GA1.2.908011938.1701389998; _ga_41FNVSG4XV=GS1.1.1701389997.1.1.1701390630.60.0.0; _ga=GA1.2.732575048.1701389997',
           'Content-Type': 'application/json',
+          Referer: 'https://www.realtyprice.kr/notice/town/nfSiteLink.htm',
+          'Sec-Ch-Ua':
+            '"Google Chrome";v="119", "Chromium";v="119", "Not?A_Brand";v="24"',
+          'Sec-Fetch-Dest': 'empty',
+          'Sec-Fetch-Mode': 'cors',
+          'Sec-Fetch-Site': 'same-origin',
+          'Sec-Ch-Ua-Platform': 'Windows',
           'X-Requested-With': 'XMLHttpRequest',
         },
       })
