@@ -76,11 +76,9 @@ export class RealtypricesService {
     bldDongCode,
     bldHoCode,
   ): Promise<object> {
-    const url = `https://www.realtyprice.kr/notice/search/townPriceListPastYearMap.search?page_no=1&reg_name=&sreg=&seub=&old_reg=&old_eub=&gbn=1&year=2023&notice_date=${notice_date}&notice_date_year=20230627&reg=${reg}&eub=${eub}&apt_name=&bun1=${
-      bunList[0]
-    }&bun2=${
-      bunList[1] || '0'
-    }&road_code=&initialword=&build_bun1=&build_bun2=&gbnApt=&apt_code=${code}&dong_code=${bldDongCode}&ho_code=${bldHoCode}&tabGbn=Text&full_addr_name=&dong_name=&ho_name=&notice_amt=&ktown_ho_seq=&print_yn=0&past_yn=&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=&capcha=&capcha_chk_yn=&recaptcha_token=`;
+    const url = `https://www.realtyprice.kr/notice/search/townPriceListPastYearMap.search?page_no=1&reg_name=&sreg=&seub=&old_reg=&old_eub=&gbn=1&year=2023&notice_date=${notice_date}&notice_date_year=20230627&reg=${reg}&eub=${eub}&apt_name=&bun1=${bunList[0]
+      }&bun2=${bunList[1] || '0'
+      }&road_code=&initialword=&build_bun1=&build_bun2=&gbnApt=&apt_code=${code}&dong_code=${bldDongCode}&ho_code=${bldHoCode}&tabGbn=Text&full_addr_name=&dong_name=&ho_name=&notice_amt=&ktown_ho_seq=&print_yn=0&past_yn=&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=&capcha=&capcha_chk_yn=&recaptcha_token=`;
 
     const realtyPriceList = await axios
       .get(url)
@@ -101,11 +99,9 @@ export class RealtypricesService {
     bldDongCode,
     bldHo,
   ): Promise<any> {
-    const url = `https://www.realtyprice.kr/notice/search/searchApt.search?gbn=1&year=2023&notice_date=${notice_date}&notice_date_year=20231201&gbnApt=HO&road_reg=&road=&initialword=&build_bun1=&build_bun2=&reg=${reg}&eub=${eub}&apt_name=&bun1=${
-      bunList[0]
-    }&bun2=${
-      bunList[1] || '0'
-    }&apt_code=${code}&dong_code=${bldDongCode}&ho_code=&past_yn=1&init_gbn=N&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=`;
+    const url = `https://www.realtyprice.kr/notice/search/searchApt.search?gbn=1&year=2023&notice_date=${notice_date}&notice_date_year=20231201&gbnApt=HO&road_reg=&road=&initialword=&build_bun1=&build_bun2=&reg=${reg}&eub=${eub}&apt_name=&bun1=${bunList[0]
+      }&bun2=${bunList[1] || '0'
+      }&apt_code=${code}&dong_code=${bldDongCode}&ho_code=&past_yn=1&init_gbn=N&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=`;
 
     const bldHoList = await axios
       .get(url)
@@ -129,11 +125,9 @@ export class RealtypricesService {
     bunList,
     bldDong,
   ): Promise<any> {
-    const url = `https://www.realtyprice.kr/notice/search/searchApt.search?gbn=1&year=2023&notice_date=${notice_date}&notice_date_year=20231201&gbnApt=DONG&road_reg=&road=&initialword=&build_bun1=&build_bun2=&reg=${reg}&eub=${eub}&apt_name=&bun1=${
-      bunList[0]
-    }&bun2=${
-      bunList[1] || '0'
-    }&apt_code=${code}&dong_code=&ho_code=&past_yn=1&init_gbn=N&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=`;
+    const url = `https://www.realtyprice.kr/notice/search/searchApt.search?gbn=1&year=2023&notice_date=${notice_date}&notice_date_year=20231201&gbnApt=DONG&road_reg=&road=&initialword=&build_bun1=&build_bun2=&reg=${reg}&eub=${eub}&apt_name=&bun1=${bunList[0]
+      }&bun2=${bunList[1] || '0'
+      }&apt_code=${code}&dong_code=&ho_code=&past_yn=1&init_gbn=N&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=`;
 
     const bldDongList = await axios
       .get(url)
@@ -149,11 +143,9 @@ export class RealtypricesService {
     return { bldDongList };
   }
   async getbldList(reg, eub, bunList): Promise<any> {
-    const url = `https://www.realtyprice.kr/notice/search/searchApt.search?gbn=1&year=2023&notice_date=&notice_date_year=20231201&gbnApt=&road_reg=&road=&initialword=&build_bun1=&build_bun2=&reg=${reg}&eub=${eub}&apt_name=&bun1=${
-      bunList[0]
-    }&bun2=${
-      bunList[1] || '0'
-    }&apt_code=&dong_code=&ho_code=&past_yn=1&init_gbn=N&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=`;
+    const url = `https://www.realtyprice.kr/notice/search/searchApt.search?gbn=1&year=2023&notice_date=&notice_date_year=20231201&gbnApt=&road_reg=&road=&initialword=&build_bun1=&build_bun2=&reg=${reg}&eub=${eub}&apt_name=&bun1=${bunList[0]
+      }&bun2=${bunList[1] || '0'
+      }&apt_code=&dong_code=&ho_code=&past_yn=1&init_gbn=N&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=`;
     const bldList = await axios
       .get(url, {
         headers: {
@@ -199,8 +191,8 @@ export class RealtypricesService {
     const sigungu = addressList[1];
     const dong = addressList[2];
     const bunji = addressList[3];
-    const bldDong = address.match(/\d+동/g)[0].slice(0, -1) || '';
-    const bldHo = address.match(/\d+호/g)[0].slice(0, -1) || '';
+    const bldDong = address.match(/\d+동/g)[0]?.slice(0, -1) || '';
+    const bldHo = address.match(/\d+호/g)[0]?.slice(0, -1) || '';
 
     return { sido, sigungu, dong, bunji, bldDong, bldHo };
   }
