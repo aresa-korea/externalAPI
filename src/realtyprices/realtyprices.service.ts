@@ -39,6 +39,7 @@ export class RealtypricesService {
     );
     console.log('건물 동 번호 :', bldDongList);
     if (!bldDongList) return { message: '해당하는 동이 없습니다.' };
+    console.log(bldDongList.code);
     const bldDongCode = bldDongList.code;
 
     const bldHoList = await this.getBldHoList(
@@ -84,7 +85,8 @@ export class RealtypricesService {
       .get(url)
       .then((response) => response.data.modelMap.list)
       .catch((error) => {
-        console.log(error);
+        console.log("url", url);
+        console.log("error", error.code);
       });
 
     return { realtyPriceList };
@@ -107,10 +109,11 @@ export class RealtypricesService {
       .get(url)
       .then((response) => response.data.modelMap.list)
       .catch((error) => {
-        console.log(error);
+        console.log("url", url);
+        console.log("error", error.code);
       });
 
-    // bldDong에 숫자가 있으면
+    // bldHo에 숫자가 있으면
     if (bldHo) {
       return bldHoList.find((item) => item.name === bldHo);
     }
@@ -133,14 +136,15 @@ export class RealtypricesService {
       .get(url)
       .then((response) => response.data.modelMap.list)
       .catch((error) => {
-        console.log(error);
+        console.log("url", url);
+        console.log("error", error.code);
       });
 
     // bldDong에 숫자가 있으면
     if (bldDong) {
       return bldDongList.find((item) => item.name === bldDong);
     }
-    return { bldDongList };
+    return bldDongList[0];
   }
   async getbldList(reg, eub, bunList): Promise<any> {
     const url = `https://www.realtyprice.kr/notice/search/searchApt.search?gbn=1&year=2023&notice_date=&notice_date_year=20231201&gbnApt=&road_reg=&road=&initialword=&build_bun1=&build_bun2=&reg=${reg}&eub=${eub}&apt_name=&bun1=${bunList[0]
@@ -165,7 +169,8 @@ export class RealtypricesService {
       })
       .then((response) => response.data.modelMap.list[0])
       .catch((error) => {
-        console.log(error);
+        console.log("url", url);
+        console.log("error", error.code);
       });
     console.log('bldList', bldList);
     return bldList;
@@ -191,8 +196,8 @@ export class RealtypricesService {
     const sigungu = addressList[1];
     const dong = addressList[2];
     const bunji = addressList[3];
-    const bldDong = address.match(/\d+동/g)[0]?.slice(0, -1) || '';
-    const bldHo = address.match(/\d+호/g)[0]?.slice(0, -1) || '';
+    const bldDong = (address.match(/\d+동/g)) ? address.match(/\d+동/g)[0]?.slice(0, -1) || '' : '';
+    const bldHo = (address.match(/\d+호/g)) ? address.match(/\d+호/g)[0]?.slice(0, -1) || '' : '';
 
     return { sido, sigungu, dong, bunji, bldDong, bldHo };
   }
