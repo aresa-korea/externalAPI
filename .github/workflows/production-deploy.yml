@@ -1,38 +1,52 @@
-name: Deploy to cloudtype
+name: production-deploy
 on:
   push:
-    branches:
-      - main
+    branches: [master]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Connect deploy key
-        uses: cloudtype-github-actions/connect@v1
+      - name: Copy repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
         with:
-          token: ${{ secrets.CLOUDTYPE_TOKEN }}
-          ghtoken: ${{ secrets.GHP_TOKEN }}
-      - name: Deploy
-        uses: cloudtype-github-actions/deploy@v1
+          node-version: ${{ matrix.node-version }}
+
+      - name: Build and Package Docker Image
+        run: |
+          docker build --target prod -t externalapi/app .
+          docker save externalapi/app | gzip > app.tgz
+
+      # - name: Configure SSH Key
+      #   uses: webfactory/ssh-agent@v0.4.0
+      #   with:
+      #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Transfer Docker Image to Server
+        uses: appleboy/scp-action@v0.1.4
         with:
-          token: ${{ secrets.CLOUDTYPE_TOKEN }}
-          project: jyjang-aresa/aresa-app
-          stage: main
-          yaml: |
-            name: externalapi
-            app: node@20
-            options:
-              env:
-                - name: NODE_ENV
-                  value: production
-              ports: 3000
-              build: npm run build
-              start: npm run start:prod
-              install: npm install
-            context:
-              git:
-                url: git@github.com:${{ github.repository }}.git
-                ref: ${{ github.ref }}
-              preset: nest.js
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: 'docker-compose.yml,app.tgz'
+          target: /app
+          timeout: 10m
+
+      - name: Connect to Server and Deploy
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /app
+            tar -xzf app.tgz
+            docker load -i app.tgz
+            docker compose up --detach --remove-orphans --wait
