@@ -175,6 +175,7 @@ export class RealtypricesService {
     );
     console.log('건물 동 번호 :', bldDongList);
     if (!bldDongList) return { message: '해당하는 동이 없습니다.' };
+    console.log(bldDongList.code);
     const bldDongCode = bldDongList.code;
 
     const bldHoList = await this.getBldHoList(
@@ -271,18 +272,25 @@ export class RealtypricesService {
     blddongriCode,
     bldHoCode,
   ): Promise<object> {
+<<<<<<< HEAD
     const notice_date_year = await this.getNoticeDateYear();
     const url = `https://www.realtyprice.kr/notice/search/townPriceListPastYearMap.search?page_no=1&reg_name=&sreg=&seub=&old_reg=&old_eub=&gbn=1&year=2023&notice_date=${notice_date}&notice_date_year=${notice_date_year}&reg=${reg}&eub=${eub}&apt_name=&bun1=${
       bunList[0]
     }&bun2=${
       bunList[1] || '0'
     }&road_code=&initialword=&build_bun1=&build_bun2=&gbnApt=&apt_code=${code}&dong_code=${blddongriCode}&ho_code=${bldHoCode}&tabGbn=Text&full_addr_name=&dong_name=&ho_name=&notice_amt=&ktown_ho_seq=&print_yn=0&past_yn=&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=&capcha=&capcha_chk_yn=&recaptcha_token=`;
+=======
+    const url = `https://www.realtyprice.kr/notice/search/townPriceListPastYearMap.search?page_no=1&reg_name=&sreg=&seub=&old_reg=&old_eub=&gbn=1&year=2023&notice_date=${notice_date}&notice_date_year=20230627&reg=${reg}&eub=${eub}&apt_name=&bun1=${bunList[0]
+      }&bun2=${bunList[1] || '0'
+      }&road_code=&initialword=&build_bun1=&build_bun2=&gbnApt=&apt_code=${code}&dong_code=${bldDongCode}&ho_code=${bldHoCode}&tabGbn=Text&full_addr_name=&dong_name=&ho_name=&notice_amt=&ktown_ho_seq=&print_yn=0&past_yn=&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=&capcha=&capcha_chk_yn=&recaptcha_token=`;
+>>>>>>> 2e8f8716f73b0475077bd115f93e6a1224332916
 
     const realtyPriceList = await axios
       .get(url)
       .then((response) => response.data.modelMap.list)
       .catch((error) => {
-        console.log(error);
+        console.log("url", url);
+        console.log("error", error.code);
       });
 
     return { realtyPriceList };
@@ -297,21 +305,28 @@ export class RealtypricesService {
     blddongriCode,
     bldHo,
   ): Promise<any> {
+<<<<<<< HEAD
     const notice_date_year = await this.getNoticeDateYear();
     const url = `https://www.realtyprice.kr/notice/search/searchApt.search?gbn=1&year=2023&notice_date=${notice_date}&notice_date_year=${notice_date_year}&gbnApt=HO&road_reg=&road=&initialword=&build_bun1=&build_bun2=&reg=${reg}&eub=${eub}&apt_name=&bun1=${
       bunList[0]
     }&bun2=${
       bunList[1] || '0'
     }&apt_code=${code}&dong_code=${blddongriCode}&ho_code=&past_yn=1&init_gbn=N&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=`;
+=======
+    const url = `https://www.realtyprice.kr/notice/search/searchApt.search?gbn=1&year=2023&notice_date=${notice_date}&notice_date_year=20231201&gbnApt=HO&road_reg=&road=&initialword=&build_bun1=&build_bun2=&reg=${reg}&eub=${eub}&apt_name=&bun1=${bunList[0]
+      }&bun2=${bunList[1] || '0'
+      }&apt_code=${code}&dong_code=${bldDongCode}&ho_code=&past_yn=1&init_gbn=N&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=`;
+>>>>>>> 2e8f8716f73b0475077bd115f93e6a1224332916
 
     const bldHoList = await axios
       .get(url)
       .then((response) => response.data.modelMap.list)
       .catch((error) => {
-        console.log(error);
+        console.log("url", url);
+        console.log("error", error.code);
       });
 
-    // bldDong에 숫자가 있으면
+    // bldHo에 숫자가 있으면
     if (bldHo) {
       return bldHoList.find((item) => item.name === bldHo);
     }
@@ -333,38 +348,52 @@ export class RealtypricesService {
     bunList,
     bldDong,
   ): Promise<any> {
+<<<<<<< HEAD
     const notice_date_year = await this.getNoticeDateYear();
     const url = `https://www.realtyprice.kr/notice/search/searchApt.search?gbn=1&year=2023&notice_date=${notice_date}&notice_date_year=${notice_date_year}&gbnApt=DONG&road_reg=&road=&initialword=&build_bun1=&build_bun2=&reg=${reg}&eub=${eub}&apt_name=&bun1=${
       bunList[0]
     }&bun2=${
       bunList[1] || '0'
     }&apt_code=${code}&dong_code=&ho_code=&past_yn=1&init_gbn=N&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=`;
+=======
+    const url = `https://www.realtyprice.kr/notice/search/searchApt.search?gbn=1&year=2023&notice_date=${notice_date}&notice_date_year=20231201&gbnApt=DONG&road_reg=&road=&initialword=&build_bun1=&build_bun2=&reg=${reg}&eub=${eub}&apt_name=&bun1=${bunList[0]
+      }&bun2=${bunList[1] || '0'
+      }&apt_code=${code}&dong_code=&ho_code=&past_yn=1&init_gbn=N&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=`;
+>>>>>>> 2e8f8716f73b0475077bd115f93e6a1224332916
 
     const bldDongList = await axios
       .get(url)
       .then((response) => response.data.modelMap.list)
       .catch((error) => {
-        console.log(error);
+        console.log("url", url);
+        console.log("error", error.code);
       });
 
     // bldDong에 숫자가 있으면
     if (bldDong) {
       return bldDongList.find((item) => item.name.includes(bldDong));
     }
-    return { bldDongList };
+    return bldDongList[0];
   }
   async getbldList(reg, eub, bunList): Promise<any> {
+<<<<<<< HEAD
     const notice_date_year = await this.getNoticeDateYear();
     const url = `https://www.realtyprice.kr/notice/search/searchApt.search?gbn=1&year=2023&notice_date=&notice_date_year=${notice_date_year}&gbnApt=&road_reg=&road=&initialword=&build_bun1=&build_bun2=&reg=${reg}&eub=${eub}&apt_name=&bun1=${
       bunList[0]
     }&bun2=${
       bunList[1] || '0'
     }&apt_code=&dong_code=&ho_code=&past_yn=1&init_gbn=N&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=`;
+=======
+    const url = `https://www.realtyprice.kr/notice/search/searchApt.search?gbn=1&year=2023&notice_date=&notice_date_year=20231201&gbnApt=&road_reg=&road=&initialword=&build_bun1=&build_bun2=&reg=${reg}&eub=${eub}&apt_name=&bun1=${bunList[0]
+      }&bun2=${bunList[1] || '0'
+      }&apt_code=&dong_code=&ho_code=&past_yn=1&init_gbn=N&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=`;
+>>>>>>> 2e8f8716f73b0475077bd115f93e6a1224332916
     const bldList = await axios
       .get(url)
       .then((response) => response.data.modelMap.list[0])
       .catch((error) => {
-        console.log(error);
+        console.log("url", url);
+        console.log("error", error.code);
       });
     console.log('bldList', bldList);
     return bldList;
@@ -387,6 +416,7 @@ export class RealtypricesService {
   async parsingAddress(address: string): Promise<Address> {
     console.log(address);
     const addressList = address.split(' ');
+<<<<<<< HEAD
     const sido = addressList.shift();
     const sigungu = addressList.shift();
     console.log(addressList);
@@ -399,6 +429,14 @@ export class RealtypricesService {
     const isBldHo = address.match(/([가-힣]+호)/);
     const bldHo = isBldHo ? isBldHo[0].slice(0, -1) : '';
     console.log('bldHo', bldHo);
+=======
+    const sido = addressList[0];
+    const sigungu = addressList[1];
+    const dong = addressList[2];
+    const bunji = addressList[3];
+    const bldDong = (address.match(/\d+동/g)) ? address.match(/\d+동/g)[0]?.slice(0, -1) || '' : '';
+    const bldHo = (address.match(/\d+호/g)) ? address.match(/\d+호/g)[0]?.slice(0, -1) || '' : '';
+>>>>>>> 2e8f8716f73b0475077bd115f93e6a1224332916
 
     return { sido, sigungu, dongri, bunji, bldDong, bldHo };
   }
