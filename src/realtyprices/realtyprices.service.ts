@@ -164,6 +164,7 @@ export class RealtypricesService {
 
     const { code, notice_date } = await this.getbldList(reg, eub, bunList);
     console.log('건물코드 :', code);
+    if (!code) return { message: '해당하는 건물 정보가 없습니다.' };
 
     const bldDongList = await this.getBldDongList(
       code,
@@ -174,7 +175,7 @@ export class RealtypricesService {
       dongName,
     );
     console.log('건물 동 번호 :', bldDongList);
-    if (!bldDongList) return { message: '해당하는 동이 없습니다.' };
+    if (!bldDongList) return { message: '해당하는 동 정보가 없습니다.' };
     const bldDongCode = bldDongList.code;
 
     const bldHoList = await this.getBldHoList(
@@ -187,7 +188,7 @@ export class RealtypricesService {
       hoName,
     );
     console.log('건물 호 번호 :', bldHoList);
-    if (!bldHoList) return { message: '해당하는 호가 없습니다.' };
+    if (!bldHoList) return { message: '해당하는 호 정보가 없습니다.' };
     const bldHoCode = bldHoList.code;
 
     const realtyPriceList = await this.getRealtyPriceList(
@@ -222,6 +223,7 @@ export class RealtypricesService {
     console.log('시도시군구 동 코드', reg, eub);
 
     const { code, notice_date } = await this.getbldList(reg, eub, bunList);
+    if (!code) return { message: '해당하는 건물이 없습니다.' };
     console.log('건물코드 :', code);
 
     const bldDongList = await this.getBldDongList(
@@ -311,9 +313,9 @@ export class RealtypricesService {
         console.log(error);
       });
 
-    // bldDong에 숫자가 있으면
+    // bldHo에 숫자가 있으면
     if (bldHo) {
-      return bldHoList.find((item) => item.name === bldHo);
+      return bldHoList.find((item) => item.name.includes(bldHo));
     }
     return { bldHoList };
   }
@@ -360,14 +362,17 @@ export class RealtypricesService {
     }&bun2=${
       bunList[1] || '0'
     }&apt_code=&dong_code=&ho_code=&past_yn=1&init_gbn=N&searchGbnRoad=&searchGbnBunji=1&searchGbnBunjiYear=`;
+    // console.log(url);
+
     const bldList = await axios
       .get(url)
-      .then((response) => response.data.modelMap.list[0])
+      .then((response) => response.data.modelMap.list)
       .catch((error) => {
         console.log(error);
       });
+
     console.log('bldList', bldList);
-    return bldList;
+    return bldList ? bldList[0] : { code: '', notice_date: '' };
   }
 
   getRegionCode = async (sido, sigungu, dongri): Promise<any> => {
