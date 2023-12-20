@@ -29,7 +29,6 @@ export class BldRgstService {
     console.log('건축물대장 발급 시작 ======================>>');
     console.time('건축물대장 발급');
     try {
-      console.log('getBldRgstMst');
       const aesIv = Buffer.alloc(16, 0);
       const aesKey = Crypto.randomBytes(16);
       const headers = await this.tilkoApiService.getCommonHeader(aesKey);

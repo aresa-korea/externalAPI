@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Query } from '@nestjs/common';
 import { BldRgstService } from './bld-rgst.service';
 
-@Controller('odocs/bld-rgst')
+@Controller('bld-rgst')
 export class BldRgstController {
   constructor(private readonly bldRgstService: BldRgstService) {}
 

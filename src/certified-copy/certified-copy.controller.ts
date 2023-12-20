@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { CertifiedCopyService } from './certified-copy.service';
 
-@Controller('odocs/certified-copy')
+@Controller('certified-copy')
 export class CertifiedCopyController {
   constructor(private readonly certifiedCopyService: CertifiedCopyService) {}
 
