@@ -2,7 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { LandledgerService } from './landledger.service';
 import { ILandLedger } from './interfaces/landledger.interface';
 
-@Controller('landledger')
+@Controller('odocs/landledger')
 export class LandledgerController {
   constructor(private readonly landledgerService: LandledgerService) {
     // Add your constructor logic here

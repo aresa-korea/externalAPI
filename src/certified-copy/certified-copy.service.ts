@@ -7,7 +7,6 @@ import { TilkoApiService } from 'src/tilko-api/tilko-api.service';
 @Injectable()
 export class CertifiedCopyService {
   private ENDPOINT: string;
-  private API_KEY: string;
   private UNIQUE_NO_URL: string;
   private CERTIFIED_INFO_URL: string;
   private MAKE_PDF_URL: string;
@@ -20,7 +19,6 @@ export class CertifiedCopyService {
 
   constructor(private readonly tilkoApiService: TilkoApiService) {
     this.ENDPOINT = process.env.TILKO_API_ENDPOINT;
-    this.API_KEY = process.env.TILKO_API_KEY;
     this.UNIQUE_NO_URL = `${this.ENDPOINT}api/v1.0/Iros/RISUConfirmSimpleC`;
     this.CERTIFIED_INFO_URL = `${this.ENDPOINT}api/v1.0/iros/risuretrieve`;
     this.MAKE_PDF_URL = `${this.ENDPOINT}api/v1.0/iros/getpdffile`;

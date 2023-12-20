@@ -7,14 +7,12 @@ import { TilkoApiService } from 'src/tilko-api/tilko-api.service';
 @Injectable()
 export class BldRgstService {
   private ENDPOINT: string;
-  private API_KEY: string;
   private DTL_URL: string;
   private SEARCH_URL: string;
   private RPTC_URL: string;
 
   constructor(private readonly tilkoApiService: TilkoApiService) {
     this.ENDPOINT = process.env.TILKO_API_ENDPOINT;
-    this.API_KEY = process.env.TILKO_API_KEY;
     this.DTL_URL = `${this.ENDPOINT}api/v2.0/EaisIdLogin/BldRgstDtl`;
     this.SEARCH_URL = `${this.ENDPOINT}api/v2.0/EaisIdLogin/BldRgstMst`;
     this.RPTC_URL = `${this.ENDPOINT}api/v2.0/EaisIdLogin/RPTCAA02R01`;
@@ -26,7 +24,7 @@ export class BldRgstService {
     queryAddress: string,
     hoNm: string,
     dongNm: string,
-    path = 'getBldRgst',
+    path = 'bld-rgst',
   ): Promise<string> {
     console.log('건축물대장 발급 시작 ======================>>');
     console.time('건축물대장 발급');
