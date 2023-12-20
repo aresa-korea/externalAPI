@@ -176,7 +176,7 @@ export class RealtypricesService {
     );
     console.log('건물 동 번호 :', bldDongList);
     if (!bldDongList) return { message: '해당하는 동 정보가 없습니다.' };
-    const bldDongCode = bldDongList.code;
+    const bldDongCode = bldDongList[0].code;
 
     const bldHoList = await this.getBldHoList(
       code,
@@ -189,7 +189,7 @@ export class RealtypricesService {
     );
     console.log('건물 호 번호 :', bldHoList);
     if (!bldHoList) return { message: '해당하는 호 정보가 없습니다.' };
-    const bldHoCode = bldHoList.code;
+    const bldHoCode = bldHoList[0].code;
 
     const realtyPriceList = await this.getRealtyPriceList(
       code,
@@ -315,9 +315,9 @@ export class RealtypricesService {
 
     // bldHo에 숫자가 있으면
     if (bldHo) {
-      return bldHoList.find((item) => item.name.includes(bldHo));
+      return [bldHoList.find((item) => item.name.includes(bldHo))];
     }
-    return { bldHoList };
+    return bldHoList;
   }
 
   async getNoticeDateYear(): Promise<string> {
@@ -351,9 +351,9 @@ export class RealtypricesService {
 
     // bldDong에 숫자가 있으면
     if (bldDong) {
-      return bldDongList.find((item) => item.name.includes(bldDong));
+      return [bldDongList.find((item) => item.name.includes(bldDong))];
     }
-    return { bldDongList };
+    return bldDongList;
   }
   async getbldList(reg, eub, bunList): Promise<any> {
     const notice_date_year = await this.getNoticeDateYear();
