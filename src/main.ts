@@ -6,9 +6,14 @@ import { join } from 'path';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  // CORS 허용 설정
+  app.enableCors({
+    origin: 'http://localhost:4200', // 클라이언트 도메인을 명시
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
+
   app.useStaticAssets(join(__dirname, '..', 'public'));
-  app.setBaseViewsDir(join(__dirname, '..', 'views'));
-  app.setViewEngine('ejs');
 
   await app.listen(5001);
 }

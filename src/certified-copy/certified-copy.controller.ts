@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, Res } from '@nestjs/common';
 import { CertifiedCopyService } from './certified-copy.service';
 
 @Controller('certified-copy')
@@ -7,24 +7,43 @@ export class CertifiedCopyController {
 
   @Get()
   async getCertifiedCopy(
-    @Query() search: { roadAddress; dongName; hoName },
+    @Query('roadAddress') roadAddress: string,
+    @Query('dongName') dongName: string,
+    @Query('hoName') hoName: string,
   ): Promise<any> {
     try {
-      const { roadAddress, dongName, hoName } = search;
-
-      const formatAddress =
+      return await this.certifiedCopyService.getCertifiedCopy(
         dongName && hoName
           ? `${roadAddress} ${dongName} ${hoName}`
           : !dongName && hoName
             ? `${roadAddress} ${hoName}`
-            : roadAddress;
-
-      const getPdfResult =
-        await this.certifiedCopyService.getCertifiedCopy(formatAddress);
-
-      return getPdfResult;
+            : roadAddress,
+        roadAddress,
+        dongName,
+        hoName,
+      );
     } catch (e) {
-      // 예외처리 해야하는데 어케할까..
+      console.log(e);
+    }
+  }
+
+  @Get('download')
+  async downloadBldRgst(
+    @Query('roadAddress') roadAddress: string,
+    @Query('dongName') dongName: string,
+    @Query('hoName') hoName: string,
+    @Res() response: Response,
+  ): Promise<any> {
+    try {
+      roadAddress = roadAddress.trim().replace(/\s/g, '_').replace(/__/g, '_');
+      const directory = `odocs/${roadAddress}_${dongName || '0'}_${
+        hoName || '0'
+      }/certified-copy`;
+      return await this.certifiedCopyService.downloadCertifiedCopy(
+        directory,
+        response,
+      );
+    } catch (e) {
       console.log(e);
     }
   }

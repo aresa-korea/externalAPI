@@ -1,27 +1,94 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { LandledgerService } from './landledger.service';
-import { ILandLedger } from './interfaces/landledger.interface';
 
-@Controller('odocs/landledger')
+@Controller('landledger')
 export class LandledgerController {
   constructor(private readonly landledgerService: LandledgerService) {
     // Add your constructor logic here
   }
 
-  // Add your routes here
-  /*
-    {
-      "INNB" : "1171010700109130000",
-      "RNMGTSN" : "117102005011",
-      "BULDMNNM" : "345",
-      "BULDSLNO" : "0"
+  @Get()
+  async getPnuCd(
+    @Query('roadAddress') roadAddress: string,
+    @Query('dongName') dongName: string,
+    @Query('hoName') hoName: string,
+  ): Promise<any> {
+    try {
+      if (!roadAddress) {
+        throw new BadRequestException('roadAddress are required.');
+      }
+
+      return await this.landledgerService.getPnuCd(
+        dongName && hoName
+          ? `${roadAddress} ${dongName}동 ${hoName}호`
+          : !dongName && hoName
+            ? `${roadAddress} ${hoName}호`
+            : roadAddress,
+      );
+    } catch (e) {
+      console.log(e);
     }
-   */
+  }
+
   @Post()
-  async getLandLedger(@Body() body: ILandLedger) {
-    // Add your business logic here
-    // For example, call a service method to handle the request
-    const LandLedger = body;
-    return this.landledgerService.getLandLedger(LandLedger);
+  async getLandLedger(
+    @Query('roadAddress') roadAddress: string,
+    @Query('dongName') dongName: string,
+    @Query('hoName') hoName: string,
+  ) {
+    if (!roadAddress) {
+      throw new BadRequestException('roadAddress are required.');
+    }
+
+    try {
+      const jusoInfo = await this.landledgerService.getPnuCd(
+        dongName && hoName
+          ? `${roadAddress} ${dongName}동 ${hoName}호`
+          : !dongName && hoName
+            ? `${roadAddress} ${hoName}호`
+            : roadAddress,
+      );
+
+      if (jusoInfo.pnu) {
+        return this.landledgerService.getLandLedger(
+          jusoInfo.pnu,
+          roadAddress,
+          dongName,
+          hoName,
+        );
+      } else {
+        return jusoInfo;
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  @Get('download')
+  async downloadBldRgst(
+    @Query('roadAddress') roadAddress: string,
+    @Query('dongName') dongName: string,
+    @Query('hoName') hoName: string,
+    @Res() response: Response,
+  ): Promise<any> {
+    try {
+      roadAddress = roadAddress.trim().replace(/\s/g, '_').replace(/__/g, '_');
+      const directory = `odocs/${roadAddress}_${dongName || '0'}_${
+        hoName || '0'
+      }/land-ledger`;
+      return await this.landledgerService.downloadLandLedger(
+        directory,
+        response,
+      );
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

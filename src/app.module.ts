@@ -6,6 +6,7 @@ import { LandledgerModule } from './landledger/landledger.module';
 import { CertifiedCopyModule } from './certified-copy/certified-copy.module';
 import { BldRgstModule } from './bld-rgst/bld-rgst.module';
 import { TilkoApiService } from './tilko-api/tilko-api.service';
+import { UtilsService } from './utils/utils.service';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { TilkoApiService } from './tilko-api/tilko-api.service';
     BldRgstModule,
   ],
   controllers: [AppController],
-  providers: [TilkoApiService],
+  providers: [TilkoApiService, UtilsService],
 })
 export class AppModule {}

@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Query } from '@nestjs/common';
+import { Controller, Get, Query, Res } from '@nestjs/common';
 import { BldRgstService } from './bld-rgst.service';
+import { Response } from 'express';
 
 @Controller('bld-rgst')
 export class BldRgstController {
@@ -7,40 +8,36 @@ export class BldRgstController {
 
   @Get()
   async getBldRgst(
-    @Query() search: { addressType; queryAddress; hoNm; dongNm },
+    @Query('addressType') addressType: string,
+    @Query('queryAddress') queryAddress: string,
+    @Query('dongName') dongName: string,
+    @Query('hoName') hoName: string,
   ): Promise<any> {
     try {
-      const { addressType, queryAddress, hoNm, dongNm } = search;
-
-      const getPdfResult = await this.bldRgstService.getBldRgst(
+      return await this.bldRgstService.getBldRgst(
         addressType,
         queryAddress,
-        hoNm,
-        dongNm,
+        hoName,
+        dongName,
       );
-
-      return getPdfResult;
     } catch (e) {
       console.log(e);
     }
   }
 
-  @Post('bulk')
-  async getBldRgsts(
-    @Query() search: { addressType; queryAddress; hoNm; dongNm },
+  @Get('download')
+  async downloadBldRgst(
+    @Query('roadAddress') roadAddress: string,
+    @Query('dongName') dongName: string,
+    @Query('hoName') hoName: string,
+    @Res() response: Response,
   ): Promise<any> {
-    // 테스트 해야합니다.
     try {
-      const { addressType, queryAddress, hoNm, dongNm } = search;
-
-      const getPdfResult = await this.bldRgstService.getBldRgst(
-        addressType,
-        queryAddress,
-        hoNm,
-        dongNm,
-      );
-
-      return getPdfResult;
+      roadAddress = roadAddress.trim().replace(/\s/g, '_').replace(/__/g, '_');
+      const directory = `odocs/${roadAddress}_${dongName || '0'}_${
+        hoName || '0'
+      }/bld-rgst`;
+      return await this.bldRgstService.downloadBldRgst(directory, response);
     } catch (e) {
       console.log(e);
     }

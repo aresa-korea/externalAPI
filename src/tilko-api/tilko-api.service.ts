@@ -66,19 +66,4 @@ export class TilkoApiService {
     console.timeEnd('AES Encryption');
     return encrypted;
   }
-
-  async getCurrentTime() {
-    const now = new Date();
-    const year = now.getFullYear().toString();
-    const month = now.getMonth() + 1;
-    const day = now.getDate();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-
-    return [year, month, day, hours, minutes].map(this.pad).join('');
-  }
-
-  private pad(number: number) {
-    return number.toString().padStart(2, '0');
-  }
 }

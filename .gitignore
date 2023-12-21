@@ -5,6 +5,7 @@
 
 /certified-copy
 /bld-rgst
+/odocs
 
 # User-specific stuff:
 .idea/**/workspace.xml
