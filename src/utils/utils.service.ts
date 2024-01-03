@@ -92,4 +92,16 @@ export class UtilsService {
       response.status(500).send('Error sending file');
     }
   }
+
+  async downloadByRecently(directory: string, response): Promise<any> {
+    try {
+      const fileList = await this.getFileList(directory);
+      console.log(fileList[0]);
+
+      return this.getFileDownload(directory, response);
+    } catch (error) {
+      console.error('Error reading directory:', error);
+      return []; // 디렉토리 읽기 실패 시 빈 배열 반환
+    }
+  }
 }

@@ -27,11 +27,53 @@ export class CertifiedCopyService {
     this.MAKE_PDF_URL = `${this.ENDPOINT}api/v1.0/iros/getpdffile`;
   }
 
+  gatAddressMakeOption(address: string) {
+    const addresses = address.split(' ');
+    const findAddresses = addresses.find((address) => address.includes('('));
+    if (findAddresses) {
+      const fIndex = addresses.indexOf(findAddresses);
+
+      let cAddr = findAddresses;
+      cAddr = cAddr.replace('A', '에이');
+      cAddr = cAddr.replace('a', '에이');
+      cAddr = cAddr.replace('B', '비이');
+      cAddr = cAddr.replace('b', '비이');
+      cAddr = cAddr.replace('C', '씨이');
+      cAddr = cAddr.replace('c', '씨이');
+      cAddr = cAddr.replace('D', '디이');
+      cAddr = cAddr.replace('d', '디이');
+      cAddr = cAddr.replace('E', '이이');
+      cAddr = cAddr.replace('e', '이이');
+
+      // findAddress를 address 원래 자리에 넣는다.
+
+      if (cAddr.includes('(')) {
+        cAddr = cAddr.replace(/\(/g, ' ');
+      }
+
+      if (cAddr.includes(')')) {
+        cAddr = !cAddr.includes(')동')
+          ? cAddr.replace(/\)/g, '동')
+          : cAddr.replace(/\)/g, '');
+      } else {
+        if (!cAddr.includes('동')) {
+          cAddr = cAddr + '동';
+        }
+      }
+
+      addresses[fIndex] = cAddr;
+      address = addresses.join(' ');
+    }
+
+    return address;
+  }
+
   async getCertifiedCopy(
     address: string,
     queryAddress: string,
     dongName: string,
     hoName: string,
+    userId: string,
     path = 'certified-copy',
   ): Promise<any> {
     this.utilsService.startProcess('등기부등본 발급');
@@ -41,8 +83,15 @@ export class CertifiedCopyService {
       const aesKey = Crypto.randomBytes(16);
       const headers = await this.tilkoApiService.getCommonHeader(aesKey);
 
+      let cAddr = null;
+      if (address.includes('(')) {
+        cAddr = this.gatAddressMakeOption(address);
+      }
+
+      console.log('address', address);
+
       const uniqueNoOptions = {
-        Address: address,
+        Address: cAddr ? cAddr : address,
         Sangtae: '2',
         KindClsFlag: '0',
         Region: '0',
@@ -56,6 +105,7 @@ export class CertifiedCopyService {
         { headers },
       );
       console.timeEnd('getUniqueNoResp');
+      console.log(uniqueNoResponse.data);
 
       if (
         uniqueNoResponse.data.ErrorCode === 0 &&
@@ -107,9 +157,10 @@ export class CertifiedCopyService {
 
         // 경로가 존재하지 않으면 생성
         const fileName = this.utilsService.saveToPdf(
-          `odocs/${queryAddress.replace('  ', '_')}_${dongName || '0'}_${
-            hoName || '0'
-          }/${path}`,
+          `odocs${userId ? '/' + userId : ''}/${queryAddress.replace(
+            '  ',
+            '_',
+          )}_${dongName || '0'}_${hoName || '0'}/${path}`,
           queryAddress,
           binaryBuffer,
         );

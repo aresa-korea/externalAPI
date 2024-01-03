@@ -1,19 +1,19 @@
 import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
-import { join } from 'path';
+import * as fs from 'fs';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  let app;
 
-  // CORS 허용 설정
-  app.enableCors({
-    origin: 'http://localhost:4200', // 클라이언트 도메인을 명시
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  });
-
-  app.useStaticAssets(join(__dirname, '..', 'public'));
+  if (process.env.ENV === 'production') {
+    const httpsOptions = {
+      key: fs.readFileSync(process.env.SSL_KEY_PATH),
+      cert: fs.readFileSync(process.env.SSL_CERT_PATH),
+    };
+    app = await NestFactory.create(AppModule, { httpsOptions });
+  } else {
+    app = await NestFactory.create(AppModule);
+  }
 
   await app.listen(5001);
 }

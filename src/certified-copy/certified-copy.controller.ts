@@ -10,6 +10,7 @@ export class CertifiedCopyController {
     @Query('roadAddress') roadAddress: string,
     @Query('dongName') dongName: string,
     @Query('hoName') hoName: string,
+    @Query('userId') userId: string,
   ): Promise<any> {
     try {
       return await this.certifiedCopyService.getCertifiedCopy(
@@ -21,6 +22,7 @@ export class CertifiedCopyController {
         roadAddress,
         dongName,
         hoName,
+        userId,
       );
     } catch (e) {
       console.log(e);
@@ -32,13 +34,14 @@ export class CertifiedCopyController {
     @Query('roadAddress') roadAddress: string,
     @Query('dongName') dongName: string,
     @Query('hoName') hoName: string,
+    @Query('userId') userId: string,
     @Res() response: Response,
   ): Promise<any> {
     try {
       roadAddress = roadAddress.trim().replace(/\s/g, '_').replace(/__/g, '_');
-      const directory = `odocs/${roadAddress}_${dongName || '0'}_${
-        hoName || '0'
-      }/certified-copy`;
+      const directory = `odocs${userId ? '/' + userId : ''}/${roadAddress}_${
+        dongName || '0'
+      }_${hoName || '0'}/certified-copy`;
       return await this.certifiedCopyService.downloadCertifiedCopy(
         directory,
         response,

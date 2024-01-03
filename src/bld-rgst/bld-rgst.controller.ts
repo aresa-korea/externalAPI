@@ -12,6 +12,7 @@ export class BldRgstController {
     @Query('queryAddress') queryAddress: string,
     @Query('dongName') dongName: string,
     @Query('hoName') hoName: string,
+    @Query('userId') userId: string,
   ): Promise<any> {
     try {
       return await this.bldRgstService.getBldRgst(
@@ -19,6 +20,7 @@ export class BldRgstController {
         queryAddress,
         hoName,
         dongName,
+        userId,
       );
     } catch (e) {
       console.log(e);
@@ -30,13 +32,14 @@ export class BldRgstController {
     @Query('roadAddress') roadAddress: string,
     @Query('dongName') dongName: string,
     @Query('hoName') hoName: string,
+    @Query('userId') userId: string,
     @Res() response: Response,
   ): Promise<any> {
     try {
       roadAddress = roadAddress.trim().replace(/\s/g, '_').replace(/__/g, '_');
-      const directory = `odocs/${roadAddress}_${dongName || '0'}_${
-        hoName || '0'
-      }/bld-rgst`;
+      const directory = `odocs${userId ? '/' + userId : ''}/${roadAddress}_${
+        dongName || '0'
+      }_${hoName || '0'}/bld-rgst`;
       return await this.bldRgstService.downloadBldRgst(directory, response);
     } catch (e) {
       console.log(e);

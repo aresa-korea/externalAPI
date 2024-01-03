@@ -42,6 +42,7 @@ export class LandledgerController {
     @Query('roadAddress') roadAddress: string,
     @Query('dongName') dongName: string,
     @Query('hoName') hoName: string,
+    @Query('userId') userId: string,
   ) {
     if (!roadAddress) {
       throw new BadRequestException('roadAddress are required.');
@@ -62,6 +63,7 @@ export class LandledgerController {
           roadAddress,
           dongName,
           hoName,
+          userId,
         );
       } else {
         return jusoInfo;
@@ -76,13 +78,14 @@ export class LandledgerController {
     @Query('roadAddress') roadAddress: string,
     @Query('dongName') dongName: string,
     @Query('hoName') hoName: string,
+    @Query('userId') userId: string,
     @Res() response: Response,
   ): Promise<any> {
     try {
       roadAddress = roadAddress.trim().replace(/\s/g, '_').replace(/__/g, '_');
-      const directory = `odocs/${roadAddress}_${dongName || '0'}_${
-        hoName || '0'
-      }/land-ledger`;
+      const directory = `odocs${userId ? '/' + userId : ''}/${roadAddress}_${
+        dongName || '0'
+      }_${hoName || '0'}/land-ledger`;
       return await this.landledgerService.downloadLandLedger(
         directory,
         response,

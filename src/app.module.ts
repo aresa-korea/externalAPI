@@ -7,6 +7,8 @@ import { CertifiedCopyModule } from './certified-copy/certified-copy.module';
 import { BldRgstModule } from './bld-rgst/bld-rgst.module';
 import { TilkoApiService } from './tilko-api/tilko-api.service';
 import { UtilsService } from './utils/utils.service';
+import { UtilsController } from './utils/utils.controller';
+import { UtilsModule } from './utils/utils.module';
 
 @Module({
   imports: [
@@ -18,8 +20,9 @@ import { UtilsService } from './utils/utils.service';
     LandledgerModule,
     CertifiedCopyModule,
     BldRgstModule,
+    UtilsModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, UtilsController],
   providers: [TilkoApiService, UtilsService],
 })
 export class AppModule {}

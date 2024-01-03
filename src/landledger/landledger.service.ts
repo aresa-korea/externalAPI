@@ -69,6 +69,7 @@ export class LandledgerService {
     roadAddress: string,
     dongName: string,
     hoName: string,
+    userId: string,
     path = 'land-ledger',
   ): Promise<any> {
     this.utilsService.startProcess('토지대장 발급');
@@ -123,9 +124,9 @@ export class LandledgerService {
       // HexString to Hex
       const binaryBuffer = Buffer.from(respOut.hexString, 'hex');
       const fileName = this.utilsService.saveToPdf(
-        `odocs/${roadAddress.replace('  ', '_')}_${dongName || '0'}_${
-          hoName || '0'
-        }/${path}`,
+        `odocs${userId ? '/' + userId : ''}/${roadAddress.replace('  ', '_')}_${
+          dongName || '0'
+        }_${hoName || '0'}/${path}`,
         roadAddress,
         binaryBuffer,
       );

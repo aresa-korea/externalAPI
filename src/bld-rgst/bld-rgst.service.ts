@@ -29,6 +29,7 @@ export class BldRgstService {
     queryAddress: string,
     hoName: string,
     dongName: string,
+    userId: string,
     path = 'bld-rgst',
   ): Promise<any> {
     this.utilsService.startProcess('건축물대장 발급');
@@ -84,9 +85,10 @@ export class BldRgstService {
 
       // 경로가 존재하지 않으면 생성
       const fileName = this.utilsService.saveToPdf(
-        `odocs/${queryAddress.replace('  ', '_')}_${dongName || '0'}_${
-          hoName || '0'
-        }/${path}`,
+        `odocs${userId ? '/' + userId : ''}/${queryAddress.replace(
+          '  ',
+          '_',
+        )}_${dongName || '0'}_${hoName || '0'}/${path}`,
         queryAddress,
         binaryBuffer,
       );
