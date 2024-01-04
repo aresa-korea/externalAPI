@@ -11,18 +11,24 @@ export class CertifiedCopyController {
     @Query('dongName') dongName: string,
     @Query('hoName') hoName: string,
     @Query('userId') userId: string,
+    @Query('type') type: string,
   ): Promise<any> {
     try {
-      return await this.certifiedCopyService.getCertifiedCopy(
-        dongName && hoName
-          ? `${roadAddress} ${dongName} ${hoName}`
-          : !dongName && hoName
-            ? `${roadAddress} ${hoName}`
-            : roadAddress,
+      const address = this.createAddress(roadAddress, dongName, hoName);
+      const uniqueNoRes = await this.certifiedCopyService.getUniqueNo(address);
+      const filePath = this.createFilePath(
+        userId,
         roadAddress,
         dongName,
         hoName,
-        userId,
+      );
+      const saveFileName = address;
+
+      return await this.certifiedCopyService.getCertifiedCopy(
+        uniqueNoRes,
+        filePath,
+        saveFileName,
+        type,
       );
     } catch (e) {
       console.log(e);
@@ -49,5 +55,29 @@ export class CertifiedCopyController {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  private createAddress(
+    roadAddress: string,
+    dongName?: string,
+    hoName?: string,
+  ): string {
+    return dongName && hoName
+      ? `${roadAddress} ${dongName} ${hoName}`
+      : !dongName && hoName
+        ? `${roadAddress} ${hoName}`
+        : roadAddress;
+  }
+
+  private createFilePath(
+    userId: string,
+    roadAddress: string,
+    dongName?: string,
+    hoName?: string,
+  ): string {
+    return `odocs${userId ? '/' + userId : ''}/${roadAddress.replace(
+      '  ',
+      '_',
+    )}_${dongName || '0'}_${hoName || '0'}/certified-copy`;
   }
 }

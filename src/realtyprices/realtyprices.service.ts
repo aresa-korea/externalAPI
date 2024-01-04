@@ -154,6 +154,7 @@ export class RealtypricesService {
   async getRealtyPrice({ fullCode, bunji, dongName, hoName }): Promise<object> {
     console.log(fullCode, bunji, dongName, hoName);
 
+    bunji = bunji ? bunji : '0000-0000';
     const bunList = bunji.split('-');
     console.log('번지 리스트', bunList);
 

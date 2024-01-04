@@ -70,6 +70,7 @@ export class LandledgerService {
     dongName: string,
     hoName: string,
     userId: string,
+    type: string,
     path = 'land-ledger',
   ): Promise<any> {
     this.utilsService.startProcess('토지대장 발급');
@@ -123,7 +124,18 @@ export class LandledgerService {
 
       // HexString to Hex
       const binaryBuffer = Buffer.from(respOut.hexString, 'hex');
-      const fileName = this.utilsService.saveToPdf(
+
+      if (type === '1') {
+        this.utilsService.endProcess('토지대장 발급');
+        return {
+          Status: 200,
+          Message: '바이너리가 생성되었습니다.',
+          TargetMessage: '바이너리가 생성되었습니다.',
+          binaryBuffer: binaryBuffer, // 파일의 경로를 포함
+        };
+      }
+
+      const fileName = await this.utilsService.saveToPdf(
         `odocs${userId ? '/' + userId : ''}/${roadAddress.replace('  ', '_')}_${
           dongName || '0'
         }_${hoName || '0'}/${path}`,

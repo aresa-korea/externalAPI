@@ -68,13 +68,41 @@ export class CertifiedCopyService {
     return address;
   }
 
+  async getUniqueNo(address: string): Promise<any> {
+    this.utilsService.startProcess('건물 고유 번호 발급');
+    const aesKey = Crypto.randomBytes(16);
+    const headers = await this.tilkoApiService.getCommonHeader(aesKey);
+
+    let cAddr = null;
+    if (address.includes('(')) {
+      cAddr = this.gatAddressMakeOption(address);
+    }
+
+    console.log('address', address);
+
+    const uniqueNoOptions = {
+      Address: cAddr ? cAddr : address,
+      Sangtae: '2',
+      KindClsFlag: '0',
+      Region: '0',
+      Page: '1',
+    };
+
+    console.time('getUniqueNoResp');
+    const { data } = await axios.post(this.UNIQUE_NO_URL, uniqueNoOptions, {
+      headers,
+    });
+    console.timeEnd('getUniqueNoResp');
+    console.log(data);
+    this.utilsService.endProcess('건물 고유 번호 발급');
+    return data;
+  }
+
   async getCertifiedCopy(
-    address: string,
-    queryAddress: string,
-    dongName: string,
-    hoName: string,
-    userId: string,
-    path = 'certified-copy',
+    uniqueNoRes: any,
+    filePath: string,
+    saveFileName: string,
+    type: string,
   ): Promise<any> {
     this.utilsService.startProcess('등기부등본 발급');
 
@@ -83,38 +111,21 @@ export class CertifiedCopyService {
       const aesKey = Crypto.randomBytes(16);
       const headers = await this.tilkoApiService.getCommonHeader(aesKey);
 
-      let cAddr = null;
-      if (address.includes('(')) {
-        cAddr = this.gatAddressMakeOption(address);
+      const data = uniqueNoRes;
+
+      if (data.PointBalance < 10000) {
+        this.utilsService.sendEmail(
+          'aresa01.bryan@aresa.io',
+          '포인트 부족 알림',
+          `포인트가 부족합니다. 현재 포인트: ${data.PointBalance}`,
+        );
       }
 
-      console.log('address', address);
-
-      const uniqueNoOptions = {
-        Address: cAddr ? cAddr : address,
-        Sangtae: '2',
-        KindClsFlag: '0',
-        Region: '0',
-        Page: '1',
-      };
-
-      console.time('getUniqueNoResp');
-      const uniqueNoResponse = await axios.post(
-        this.UNIQUE_NO_URL,
-        uniqueNoOptions,
-        { headers },
-      );
-      console.timeEnd('getUniqueNoResp');
-      console.log(uniqueNoResponse.data);
-
-      if (
-        uniqueNoResponse.data.ErrorCode === 0 &&
-        uniqueNoResponse.data.ResultList[0]
-      ) {
+      if (data.ErrorCode === 0 && data.ResultList[0]) {
         const certifiedInfoOptions = await this.makeCertifiedInfoOption(
           aesKey,
           aesIv,
-          uniqueNoResponse.data.ResultList[0].UniqueNo,
+          data.ResultList[0].UniqueNo,
         );
 
         console.time('certifiedInfo');
@@ -155,13 +166,20 @@ export class CertifiedCopyService {
         // 바이너리 파일 저장
         const binaryBuffer = Buffer.from(pdfRespData.Message, 'base64');
 
+        if (type === '1') {
+          this.utilsService.endProcess('등기부등본 발급');
+          return {
+            Status: 200,
+            Message: '바이너리가 생성되었습니다.',
+            TargetMessage: '바이너리가 생성되었습니다.',
+            binaryBuffer: binaryBuffer, // 파일의 경로를 포함
+          };
+        }
+
         // 경로가 존재하지 않으면 생성
-        const fileName = this.utilsService.saveToPdf(
-          `odocs${userId ? '/' + userId : ''}/${queryAddress.replace(
-            '  ',
-            '_',
-          )}_${dongName || '0'}_${hoName || '0'}/${path}`,
-          queryAddress,
+        const fileName = await this.utilsService.saveToPdf(
+          filePath,
+          saveFileName,
           binaryBuffer,
         );
 
@@ -175,11 +193,11 @@ export class CertifiedCopyService {
       } else {
         this.utilsService.endProcess('등기부등본 발급');
         return {
-          Status: uniqueNoResponse.data.Status,
-          Message: uniqueNoResponse.data.Message,
-          ErrorCode: uniqueNoResponse.data.ErrorCode,
-          TargetCode: uniqueNoResponse.data.TargetCode,
-          TargetMessage: uniqueNoResponse.data.TargetMessage,
+          Status: data.Status,
+          Message: data.Message,
+          ErrorCode: data.ErrorCode,
+          TargetCode: data.TargetCode,
+          TargetMessage: data.TargetMessage,
         };
       }
     } catch (error) {

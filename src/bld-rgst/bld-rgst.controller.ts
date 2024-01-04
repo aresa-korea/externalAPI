@@ -12,6 +12,7 @@ export class BldRgstController {
     @Query('queryAddress') queryAddress: string,
     @Query('dongName') dongName: string,
     @Query('hoName') hoName: string,
+    @Query('type') type: string,
     @Query('userId') userId: string,
   ): Promise<any> {
     try {
@@ -20,7 +21,8 @@ export class BldRgstController {
         queryAddress,
         hoName,
         dongName,
-        userId,
+        userId || '',
+        type,
       );
     } catch (e) {
       console.log(e);

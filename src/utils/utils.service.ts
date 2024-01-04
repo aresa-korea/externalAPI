@@ -1,8 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
+import * as nodemailer from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 @Injectable()
 export class UtilsService {
+  private transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo>;
+
+  constructor() {
+    this.transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+      from: process.env.SMTP_FROM,
+    });
+  }
+
   async readPdf(fullPath: string) {
     try {
       const buffer = await fs.readFileSync(fullPath);
@@ -103,5 +120,21 @@ export class UtilsService {
       console.error('Error reading directory:', error);
       return []; // 디렉토리 읽기 실패 시 빈 배열 반환
     }
+  }
+
+  async sendEmail(recipient, subject, text) {
+    const mailOptions = {
+      to: recipient,
+      subject: subject,
+      text: text,
+    };
+
+    await this.transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
   }
 }

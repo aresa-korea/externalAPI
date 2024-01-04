@@ -30,6 +30,7 @@ export class BldRgstService {
     hoName: string,
     dongName: string,
     userId: string,
+    type: string,
     path = 'bld-rgst',
   ): Promise<any> {
     this.utilsService.startProcess('건축물대장 발급');
@@ -83,8 +84,18 @@ export class BldRgstService {
       const rptcResp = await axios.post(this.RPTC_URL, rptcBody, { headers });
       const binaryBuffer = Buffer.from(rptcResp.data.Result.PdfData, 'base64');
 
+      if (type === '1') {
+        this.utilsService.endProcess('건축물대장 발급');
+        return {
+          Status: 200,
+          Message: '바이너리가 생성되었습니다.',
+          TargetMessage: '바이너리가 생성되었습니다.',
+          binaryBuffer: binaryBuffer, // 파일의 경로를 포함
+        };
+      }
+
       // 경로가 존재하지 않으면 생성
-      const fileName = this.utilsService.saveToPdf(
+      const fileName = await this.utilsService.saveToPdf(
         `odocs${userId ? '/' + userId : ''}/${queryAddress.replace(
           '  ',
           '_',

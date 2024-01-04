@@ -43,6 +43,7 @@ export class LandledgerController {
     @Query('dongName') dongName: string,
     @Query('hoName') hoName: string,
     @Query('userId') userId: string,
+    @Query('type') type: string,
   ) {
     if (!roadAddress) {
       throw new BadRequestException('roadAddress are required.');
@@ -63,7 +64,8 @@ export class LandledgerController {
           roadAddress,
           dongName,
           hoName,
-          userId,
+          userId || '',
+          type,
         );
       } else {
         return jusoInfo;
