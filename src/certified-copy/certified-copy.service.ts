@@ -82,7 +82,7 @@ export class CertifiedCopyService {
 
     const uniqueNoOptions = {
       Address: cAddr ? cAddr : address,
-      Sangtae: '2',
+      Sangtae: '0',
       KindClsFlag: '0',
       Region: '0',
       Page: '1',
