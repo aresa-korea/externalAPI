@@ -11,11 +11,17 @@ export class CertifiedCopyController {
     @Query('dongName') dongName: string,
     @Query('hoName') hoName: string,
     @Query('userId') userId: string,
+    @Query('sangtae') sangtae: string = '0',
+    @Query('kindClsFlag') kindClsFlag: string = '0',
     @Query('type') type: string,
   ): Promise<any> {
     try {
       const address = this.createAddress(roadAddress, dongName, hoName);
-      const uniqueNoRes = await this.certifiedCopyService.getUniqueNo(address);
+      const uniqueNoRes = await this.certifiedCopyService.getUniqueNo(
+        address,
+        sangtae,
+        kindClsFlag,
+      );
       const filePath = this.createFilePath(
         userId,
         roadAddress,

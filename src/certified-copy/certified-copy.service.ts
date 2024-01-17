@@ -68,25 +68,111 @@ export class CertifiedCopyService {
     return address;
   }
 
-  async getUniqueNo(address: string): Promise<any> {
+  getRegionNumber(address: string) {
+    const region = address.split(' ')[0];
+    let regionNumber = '0';
+
+    switch (region) {
+      case '서울특별시':
+        regionNumber = '1';
+        break;
+      case '부산광역시':
+        regionNumber = '2';
+        break;
+      case '대구광역시':
+        regionNumber = '3';
+        break;
+      case '인천광역시':
+        regionNumber = '4';
+        break;
+      case '광주광역시':
+        regionNumber = '5';
+        break;
+      case '대전광역시':
+        regionNumber = '6';
+        break;
+      case '울산광역시':
+        regionNumber = '7';
+        break;
+      case '세종특별자치시':
+        regionNumber = '8';
+        break;
+      case '경기도':
+        regionNumber = '9';
+        break;
+      case '강원도':
+        regionNumber = '10';
+        break;
+      case '충청북도':
+        regionNumber = '11';
+        break;
+      case '충청남도':
+        regionNumber = '12';
+        break;
+      case '전라북도':
+        regionNumber = '13';
+        break;
+      case '전라남도':
+        regionNumber = '14';
+        break;
+      case '경상북도':
+        regionNumber = '15';
+        break;
+      case '경상남도':
+        regionNumber = '16';
+        break;
+      case '제주특별자치도':
+        regionNumber = '17';
+        break;
+      default:
+        regionNumber = '0';
+        break;
+    }
+
+    return regionNumber;
+  }
+
+  async getUniqueNo(
+    address: string,
+    sangtae: string,
+    kindClsFlag: string,
+  ): Promise<any> {
     this.utilsService.startProcess('건물 고유 번호 발급');
     const aesKey = Crypto.randomBytes(16);
     const headers = await this.tilkoApiService.getCommonHeader(aesKey);
 
-    let cAddr = null;
-    if (address.includes('(')) {
-      cAddr = this.gatAddressMakeOption(address);
-    }
+    const requestAddress = address.includes('(')
+      ? this.gatAddressMakeOption(address)
+      : address;
 
     console.log('address', address);
+    console.log('requestAddress', requestAddress);
+    /**
+     * @param Sangtae 등기상태
+     * @type String
+     * 0: 현행 / 1: 폐쇄 / 2: 현행폐쇄
+     *
+     * @param KindClsFlag (부동산 구분)
+     * @type String
+     * 0: 전체, 1: 집합건물, 2: 건물, 3: 토지)
+     *
+     * @param Region 검색할 지역
+     * @type String
+     * 전체:0/서울특별시:1/부산광역시:2/대구광역시:3
+     * /인천광역시:4/광주광역시:5/대전광역시:6/울산광역시:7
+     * /세종특별자치시:8/경기도:9/강원도:10/충청북도:11
+     * /충청남도:12/전라북도:13/전라남도:14/경상북도:15
+     * /경상남도:16/제주특별자치도:17)
+     */
 
     const uniqueNoOptions = {
-      Address: cAddr ? cAddr : address,
-      Sangtae: '0',
-      KindClsFlag: '0',
-      Region: '0',
+      Address: requestAddress,
+      Sangtae: sangtae,
+      KindClsFlag: kindClsFlag,
+      Region: this.getRegionNumber(address),
       Page: '1',
     };
+    console.log(uniqueNoOptions);
 
     console.time('getUniqueNoResp');
     const { data } = await axios.post(this.UNIQUE_NO_URL, uniqueNoOptions, {
