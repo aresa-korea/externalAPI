@@ -344,4 +344,16 @@ export class CertifiedCopyService {
       return []; // 디렉토리 읽기 실패 시 빈 배열 반환
     }
   }
+
+  /**
+   * 특정 건물의 pdf 파일 클라이언트로 리턴합니다.
+   */
+  async downloadLandCopy(directory: string, response): Promise<any> {
+    try {
+      return this.utilsService.getFileDownload(directory, response);
+    } catch (error) {
+      console.error('Error reading directory:', error);
+      return []; // 디렉토리 읽기 실패 시 빈 배열 반환
+    }
+  }
 }

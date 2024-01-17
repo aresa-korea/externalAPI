@@ -42,22 +42,33 @@ export class CertifiedCopyController {
   }
 
   @Get('download')
-  async downloadBldRgst(
+  async downloadCertifiedCopy(
     @Query('roadAddress') roadAddress: string,
     @Query('dongName') dongName: string,
     @Query('hoName') hoName: string,
+    @Query('kindClsFlag') kindClsFlag: string,
     @Query('userId') userId: string,
     @Res() response: Response,
   ): Promise<any> {
     try {
       roadAddress = roadAddress.trim().replace(/\s/g, '_').replace(/__/g, '_');
-      const directory = `odocs${userId ? '/' + userId : ''}/${roadAddress}_${
-        dongName || '0'
-      }_${hoName || '0'}/certified-copy`;
-      return await this.certifiedCopyService.downloadCertifiedCopy(
-        directory,
-        response,
-      );
+      if (kindClsFlag === '3') {
+        const directory = `odocs${userId ? '/' + userId : ''}/${roadAddress}_${
+          dongName || '0'
+        }_${hoName || '0'}/land-copy`;
+        return await this.certifiedCopyService.downloadLandCopy(
+          directory,
+          response,
+        );
+      } else {
+        const directory = `odocs${userId ? '/' + userId : ''}/${roadAddress}_${
+          dongName || '0'
+        }_${hoName || '0'}/certified-copy`;
+        return await this.certifiedCopyService.downloadCertifiedCopy(
+          directory,
+          response,
+        );
+      }
     } catch (e) {
       console.log(e);
     }
