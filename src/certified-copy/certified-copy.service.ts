@@ -184,22 +184,22 @@ export class CertifiedCopyService {
       this.utilsService.startProcess('영문 포함 건물 고유 번호 재발급');
       // A동을 에이동으로
       // B동을 비동으로
-      let changeAddress = requestAddress.replace('A동', '에이동');
-      changeAddress = requestAddress.replace('B동', '비동');
-      changeAddress = requestAddress.replace('C동', '시동');
-      changeAddress = requestAddress.replace('D동', '디동');
-      changeAddress = requestAddress.replace('E동', '이동');
-      changeAddress = requestAddress.replace('F동', '에프동');
-      changeAddress = requestAddress.replace('G동', '지동');
-      changeAddress = requestAddress.replace('H동', '에이치동');
-      changeAddress = requestAddress.replace('I동', '아이동');
-      changeAddress = requestAddress.replace('J동', '제이동');
-      changeAddress = requestAddress.replace('K동', '케이동');
-      changeAddress = requestAddress.replace('L동', '엘동');
-      changeAddress = requestAddress.replace('M동', '엠동');
-      changeAddress = requestAddress.replace('N동', '엔동');
-      changeAddress = requestAddress.replace('O동', '오동');
-      changeAddress = requestAddress.replace('P동', '피동');
+      let changeAddress = requestAddress.replace('A', '에이');
+      changeAddress = requestAddress.replace('B', '비');
+      changeAddress = requestAddress.replace('C', '시');
+      changeAddress = requestAddress.replace('D', '디');
+      changeAddress = requestAddress.replace('E', '이');
+      changeAddress = requestAddress.replace('F', '에프');
+      changeAddress = requestAddress.replace('G', '지');
+      changeAddress = requestAddress.replace('H', '에이치');
+      changeAddress = requestAddress.replace('I', '아이');
+      changeAddress = requestAddress.replace('J', '제이');
+      changeAddress = requestAddress.replace('K', '케이');
+      changeAddress = requestAddress.replace('L', '엘');
+      changeAddress = requestAddress.replace('M', '엠');
+      changeAddress = requestAddress.replace('N', '엔');
+      changeAddress = requestAddress.replace('O', '오');
+      changeAddress = requestAddress.replace('P', '피');
 
       const uniqueNoOptions = {
         Address: changeAddress,
