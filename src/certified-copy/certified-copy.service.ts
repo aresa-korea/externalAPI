@@ -180,6 +180,46 @@ export class CertifiedCopyService {
     });
     console.timeEnd('getUniqueNoResp');
     console.log(data);
+    if (data.ResultList.length === 0) {
+      this.utilsService.startProcess('영문 포함 건물 고유 번호 재발급');
+      // A동을 에이동으로
+      // B동을 비동으로
+      let changeAddress = requestAddress.replace('A동', '에이동');
+      changeAddress = requestAddress.replace('B동', '비동');
+      changeAddress = requestAddress.replace('C동', '시동');
+      changeAddress = requestAddress.replace('D동', '디동');
+      changeAddress = requestAddress.replace('E동', '이동');
+      changeAddress = requestAddress.replace('F동', '에프동');
+      changeAddress = requestAddress.replace('G동', '지동');
+      changeAddress = requestAddress.replace('H동', '에이치동');
+      changeAddress = requestAddress.replace('I동', '아이동');
+      changeAddress = requestAddress.replace('J동', '제이동');
+      changeAddress = requestAddress.replace('K동', '케이동');
+      changeAddress = requestAddress.replace('L동', '엘동');
+      changeAddress = requestAddress.replace('M동', '엠동');
+      changeAddress = requestAddress.replace('N동', '엔동');
+      changeAddress = requestAddress.replace('O동', '오동');
+      changeAddress = requestAddress.replace('P동', '피동');
+
+      const uniqueNoOptions = {
+        Address: changeAddress,
+        Sangtae: sangtae,
+        KindClsFlag: kindClsFlag,
+        Region: this.getRegionNumber(address),
+        Page: '1',
+      };
+      console.log(uniqueNoOptions);
+
+      console.time('getUniqueNoResp');
+      const { data } = await axios.post(this.UNIQUE_NO_URL, uniqueNoOptions, {
+        headers,
+      });
+      console.timeEnd('getUniqueNoResp');
+      console.log(data);
+
+      this.utilsService.endProcess('영문 포함 건물 고유 번호 재발급');
+      return data;
+    }
     this.utilsService.endProcess('건물 고유 번호 발급');
     return data;
   }

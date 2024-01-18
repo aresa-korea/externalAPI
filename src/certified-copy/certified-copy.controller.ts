@@ -22,12 +22,23 @@ export class CertifiedCopyController {
         sangtae,
         kindClsFlag,
       );
-      const filePath = this.createFilePath(
-        userId,
-        roadAddress,
-        dongName,
-        hoName,
-      );
+
+      let filePath = '';
+      if (kindClsFlag === '3') {
+        filePath = this.createFilePathLandCopy(
+          userId,
+          roadAddress,
+          dongName,
+          hoName,
+        );
+      } else {
+        filePath = this.createFilePathCertifiedCopy(
+          userId,
+          roadAddress,
+          dongName,
+          hoName,
+        );
+      }
       const saveFileName = address;
 
       return await this.certifiedCopyService.getCertifiedCopy(
@@ -86,7 +97,7 @@ export class CertifiedCopyController {
         : roadAddress;
   }
 
-  private createFilePath(
+  private createFilePathCertifiedCopy(
     userId: string,
     roadAddress: string,
     dongName?: string,
@@ -96,5 +107,17 @@ export class CertifiedCopyController {
       '  ',
       '_',
     )}_${dongName || '0'}_${hoName || '0'}/certified-copy`;
+  }
+
+  private createFilePathLandCopy(
+    userId: string,
+    roadAddress: string,
+    dongName?: string,
+    hoName?: string,
+  ): string {
+    return `odocs${userId ? '/' + userId : ''}/${roadAddress.replace(
+      '  ',
+      '_',
+    )}_${dongName || '0'}_${hoName || '0'}/land-copy`;
   }
 }
