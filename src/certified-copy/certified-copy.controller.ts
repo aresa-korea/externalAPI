@@ -5,6 +5,19 @@ import { CertifiedCopyService } from './certified-copy.service';
 export class CertifiedCopyController {
   constructor(private readonly certifiedCopyService: CertifiedCopyService) {}
 
+  @Get("revt-evtc")
+  async getRevtwelcomeevtc(
+    @Query('uniqueNo') uniqueNo: string,
+    @Query('insRealClsCd') insRealClsCd: string,
+    @Query('a103Name') a103Name: string
+  ): Promise<any> {
+    try {
+      return await this.certifiedCopyService.getRevtwelcomeevtc(uniqueNo, insRealClsCd, a103Name);
+    } catch (error) {
+      
+    }
+  }
+
   @Get()
   async getCertifiedCopy(
     @Query('roadAddress') roadAddress: string,
