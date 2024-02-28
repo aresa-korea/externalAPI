@@ -8,6 +8,7 @@ import { UtilsService } from 'src/utils/utils.service';
 export class CertifiedCopyService {
   private ENDPOINT: string;
   private UNIQUE_NO_URL: string;
+  private REVT_EVTC_URL: string;
   private CERTIFIED_INFO_URL: string;
   private MAKE_PDF_URL: string;
 
@@ -23,8 +24,37 @@ export class CertifiedCopyService {
   ) {
     this.ENDPOINT = process.env.TILKO_API_ENDPOINT;
     this.UNIQUE_NO_URL = `${this.ENDPOINT}api/v1.0/Iros/RISUConfirmSimpleC`;
+    this.REVT_EVTC_URL = `${this.ENDPOINT}api/v1.0/Iros/revtwelcomeevtc`;
     this.CERTIFIED_INFO_URL = `${this.ENDPOINT}api/v1.0/iros/risuretrieve`;
     this.MAKE_PDF_URL = `${this.ENDPOINT}api/v1.0/iros/getpdffile`;
+  }
+
+  async getRevtwelcomeevtc(uniqueNo: string, insRealClsCd: string, a103Name: string) {
+    const aesIv = Buffer.alloc(16, 0);
+    const aesKey = Crypto.randomBytes(16);
+    const headers = await this.tilkoApiService.getCommonHeader(aesKey);
+
+    const revtEvtcOptions = {
+      IrosID: await this.tilkoApiService.aesEncrypt(
+        aesKey,
+        aesIv,
+        this.IROS_ID,
+      ), // [암호화] iros.go.kr 로그인 아이디 (Base64 인코딩)
+      IrosPwd: await this.tilkoApiService.aesEncrypt(
+        aesKey,
+        aesIv,
+        this.IROS_PASSWD,
+      ), 
+      UniqueNo: uniqueNo,
+      InsRealClsCd: insRealClsCd,
+      A103Name: a103Name,
+    };
+
+    const { data } = await axios.post(this.REVT_EVTC_URL, revtEvtcOptions, {
+      headers,
+    });
+
+    return data;
   }
 
   gatAddressMakeOption(address: string) {

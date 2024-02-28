@@ -5,9 +5,23 @@ import { CertifiedCopyService } from './certified-copy.service';
 export class CertifiedCopyController {
   constructor(private readonly certifiedCopyService: CertifiedCopyService) {}
 
-  /**
-   * V2 - use uniqueNo to get Iros Search Result
-   */
+  @Get('revt-evtc')
+  async getRevtwelcomeevtc(
+    @Query('uniqueNo') uniqueNo: string,
+    @Query('insRealClsCd') insRealClsCd: string,
+    @Query('a103Name') a103Name: string,
+  ): Promise<any> {
+    try {
+      return await this.certifiedCopyService.getRevtwelcomeevtc(
+        uniqueNo,
+        insRealClsCd,
+        a103Name,
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   @Get('bld-unique-no')
   async createFileBuildingCopy(
     @Query('uniqueId') uniqueId: string,
