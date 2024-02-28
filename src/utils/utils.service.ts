@@ -62,6 +62,29 @@ export class UtilsService {
     return fileName;
   }
 
+  async saveToPdfWithMin(savePath, queryAddress, binaryBuffer) {
+    const current = await this.getCurrentMinute();
+
+    savePath = savePath.replace(/\s/g, '_');
+    savePath = savePath.replace(/__/g, '_');
+
+    if (!fs.existsSync(savePath)) {
+      fs.mkdirSync(savePath, { recursive: true });
+    } else {
+      const stats = fs.statSync(savePath);
+      if (!stats.isDirectory()) {
+        console.log('경로가 디렉토리가 아닙니다.');
+      }
+    }
+
+    const file = encodeURIComponent(`${queryAddress}_${current}.pdf`);
+    const fileName = `${savePath}/${file}`;
+
+    await fs.writeFileSync(fileName, binaryBuffer);
+
+    return fileName;
+  }
+
   async getCurrentTime() {
     const now = new Date();
     const year = now.getFullYear().toString();
@@ -72,6 +95,27 @@ export class UtilsService {
 
     return [year, month, day, hours].map(this.pad).join('');
     // return [year, month, day, hours, minutes].map(this.pad).join('');
+  }
+
+  async getCurrentMinute() {
+    const now = new Date();
+    const year = now.getFullYear().toString();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+
+    return [year, month, day, hours, minutes].map(this.pad).join('');
+  }
+
+  async getCurrentHour() {
+    const now = new Date();
+    const year = now.getFullYear().toString();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    const hours = now.getHours();
+
+    return [year, month, day, hours].map(this.pad).join('');
   }
 
   private pad(number: number) {

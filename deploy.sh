@@ -2,7 +2,7 @@
 # deploy.sh
 
 # 원격 서버 정보 설정
-REMOTE_HOST="1.235.3.160"
+REMOTE_HOST="110.10.34.34"
 REMOTE_USER="externalapi"
 REMOTE_DIR="/home/externalapi/external-api"
 

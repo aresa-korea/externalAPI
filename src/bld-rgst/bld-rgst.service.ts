@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import * as Crypto from 'crypto';
 import { TilkoApiService } from 'src/tilko-api/tilko-api.service';
@@ -23,6 +23,121 @@ export class BldRgstService {
 
   private readonly USER_ID = 'aresa01bryan';
   private readonly USER_PW = '1q2w3e4r!';
+
+  async createBldRgst(
+    addressType = '1',
+    address: string,
+    userId: string,
+    path = 'bld-rgst',
+  ) {
+    this.utilsService.startProcess('건축물대장 발급');
+    try {
+      console.log(addressType, address, userId, path);
+
+      const aesIv = Buffer.alloc(16, 0);
+      const aesKey = Crypto.randomBytes(16);
+      const headers = await this.tilkoApiService.getCommonHeader(aesKey);
+
+      // address에서 []사이의 문자열을 제거
+      let bldAddress = address
+        .replace(/\[.*?\]/g, '')
+        .replace(/\(.*?\)/g, '')
+        .trim();
+      const addressContext = await this.findAddressByKeywork(bldAddress);
+      console.log('addressContext', addressContext[0].roadAddrPart1);
+      bldAddress = addressContext[0].roadAddrPart1;
+      const bldRgstMstBody = {
+        AddressType: addressType,
+        QueryAddress: bldAddress,
+      };
+      const bldRgstMst = await axios.post(this.SEARCH_URL, bldRgstMstBody, {
+        headers,
+      });
+
+      const bldRgstMstResp = bldRgstMst.data;
+      console.log('bldRgstMstResp', bldRgstMstResp);
+      const { BldRgstSeqNumber, UntClsfCd } = bldRgstMstResp.Result[0];
+      const { RegstrKindCd, BldRgstSeqno, UpperBldRgstSeqno, MjrFmlyYn } =
+        await this.getDtlOnly(
+          aesKey,
+          aesIv,
+          BldRgstSeqNumber,
+          UntClsfCd,
+          headers,
+          address,
+        );
+
+      console.log(RegstrKindCd, BldRgstSeqno, UpperBldRgstSeqno, MjrFmlyYn);
+
+      const rptcBody = {
+        Auth: {
+          UserID: await this.tilkoApiService.aesEncrypt(
+            aesKey,
+            aesIv,
+            this.USER_ID,
+          ),
+          UserPassword: await this.tilkoApiService.aesEncrypt(
+            aesKey,
+            aesIv,
+            this.USER_PW,
+          ),
+        },
+        PublishType: 0,
+        RegstrKindCd,
+        UpperBldRgstSeqno: UpperBldRgstSeqno || '',
+        BldRgstSeqno,
+        UntClsfCd,
+        MjrFmlyYn,
+      };
+
+      const currentHour = await this.utilsService.getCurrentHour();
+      console.log('현재 시간: ', currentHour);
+      const rptcResp = await axios.post(this.RPTC_URL, rptcBody, { headers });
+      const binaryBuffer = Buffer.from(rptcResp.data.Result.PdfData, 'base64');
+      const filePath = `odocs${userId ? '/' + userId : ''}/${address}/bld-rgst`;
+      const fileName = await this.utilsService.saveToPdf(
+        filePath,
+        address,
+        binaryBuffer,
+      );
+
+      this.utilsService.endProcess('건축물대장 발급');
+      return {
+        Status: 200,
+        Message: '파일이 생성되었습니다.',
+        TargetMessage: '파일이 생성되었습니다.',
+        FileName: fileName, // 파일의 경로를 포함
+      };
+    } catch (error) {
+      this.utilsService.endProcess('건축물대장 발급');
+      console.error('Error:', error.message);
+      return {
+        Status: 500,
+        Message: 'Internal Server Error',
+        Error: error.message,
+      };
+    }
+  }
+
+  SEARCH_ADDRESS_API_KEY = 'U01TX0FVVEgyMDIzMTEyOTE4NDE1MzExNDMyMDc=';
+  SEARCH_API_ENDPOINT = 'https://business.juso.go.kr/addrlink/addrLinkApi.do';
+  async findAddressByKeywork(keyword: string): Promise<any> {
+    const params = {
+      confmKey: this.SEARCH_ADDRESS_API_KEY,
+      countPerPage: '15',
+      currentPage: '1',
+      keyword,
+      resultType: 'json',
+    };
+    const { data } = await axios.get(`${this.SEARCH_API_ENDPOINT}`, {
+      params,
+    });
+    console.log(data.results.juso);
+    if (data.results.common.errorMessage !== '정상') {
+      throw new BadRequestException('정상적인 요청이 아닙니다.');
+    }
+    return data.results.juso;
+  }
 
   async getBldRgst(
     addressType = '1',
@@ -172,6 +287,46 @@ export class BldRgstService {
     }
   }
 
+  private async getDtlOnly(
+    aesKey,
+    aesIv,
+    BldRgstSeqNumber,
+    UntClsfCd,
+    headers,
+    address,
+  ) {
+    const dtlBody = {
+      Auth: {
+        UserId: await this.tilkoApiService.aesEncrypt(
+          aesKey,
+          aesIv,
+          this.USER_ID,
+        ),
+        UserPassword: await this.tilkoApiService.aesEncrypt(
+          aesKey,
+          aesIv,
+          this.USER_PW,
+        ),
+      },
+      BldRgstSeqNumber,
+      UntClsfCd,
+    };
+
+    try {
+      const dtlResp = await axios.post(this.DTL_URL, dtlBody, { headers });
+      console.log(dtlResp.data.Result);
+      // return 0;
+      return this.filterResultsOnly(dtlResp.data.Result, address);
+    } catch (error) {
+      console.error('Error:', error.message);
+      return {
+        Status: 500,
+        Message: 'Internal Server Error',
+        Error: error.message,
+      };
+    }
+  }
+
   /**
    * 결과를 필터링합니다.
    * @param {Array} results - 원본 결과 배열
@@ -199,6 +354,19 @@ export class BldRgstService {
       );
     }
     return results[0];
+  }
+
+  private filterResultsOnly(results, address) {
+    const resultJuso = results.find(
+      (dtl) =>
+        (dtl.DongNm &&
+          dtl.HoNm &&
+          address.includes(dtl.DongNm) &&
+          address.includes(dtl.HoNm)) ||
+        (!dtl.DongNm && dtl.HoNm && address.includes(dtl.HoNm)),
+    );
+    console.log('resultJuso', resultJuso);
+    return resultJuso ? resultJuso : results[0];
   }
 
   /**

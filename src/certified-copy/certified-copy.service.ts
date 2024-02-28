@@ -184,22 +184,41 @@ export class CertifiedCopyService {
       this.utilsService.startProcess('영문 포함 건물 고유 번호 재발급');
       // A동을 에이동으로
       // B동을 비동으로
-      let changeAddress = requestAddress.replace('A', '에이');
-      changeAddress = requestAddress.replace('B', '비');
-      changeAddress = requestAddress.replace('C', '시');
-      changeAddress = requestAddress.replace('D', '디');
-      changeAddress = requestAddress.replace('E', '이');
-      changeAddress = requestAddress.replace('F', '에프');
-      changeAddress = requestAddress.replace('G', '지');
-      changeAddress = requestAddress.replace('H', '에이치');
-      changeAddress = requestAddress.replace('I', '아이');
-      changeAddress = requestAddress.replace('J', '제이');
-      changeAddress = requestAddress.replace('K', '케이');
-      changeAddress = requestAddress.replace('L', '엘');
-      changeAddress = requestAddress.replace('M', '엠');
-      changeAddress = requestAddress.replace('N', '엔');
-      changeAddress = requestAddress.replace('O', '오');
-      changeAddress = requestAddress.replace('P', '피');
+      // 주소가 '서울특별시 강남구 봉은사로 37길 23 동광팰리스 B동 302로 오는데, 여기서 B동을 비동으로 바꿔야함
+      // 이때 대소문자 상관없이 b든 B든 비로 바꿔야함
+      let changeAddress = requestAddress;
+      changeAddress = changeAddress.replace('A', '에이');
+      changeAddress = changeAddress.replace('B', '비');
+      changeAddress = changeAddress.replace('C', '시');
+      changeAddress = changeAddress.replace('D', '디');
+      changeAddress = changeAddress.replace('E', '이');
+      changeAddress = changeAddress.replace('F', '에프');
+      changeAddress = changeAddress.replace('G', '지');
+      changeAddress = changeAddress.replace('H', '에이치');
+      changeAddress = changeAddress.replace('I', '아이');
+      changeAddress = changeAddress.replace('J', '제이');
+      changeAddress = changeAddress.replace('K', '케이');
+      changeAddress = changeAddress.replace('L', '엘');
+      changeAddress = changeAddress.replace('M', '엠');
+      changeAddress = changeAddress.replace('N', '엔');
+      changeAddress = changeAddress.replace('O', '오');
+      changeAddress = changeAddress.replace('P', '피');
+      changeAddress = changeAddress.replace('a', '에이');
+      changeAddress = changeAddress.replace('b', '비');
+      changeAddress = changeAddress.replace('c', '시');
+      changeAddress = changeAddress.replace('d', '디');
+      changeAddress = changeAddress.replace('e', '이');
+      changeAddress = changeAddress.replace('f', '에프');
+      changeAddress = changeAddress.replace('g', '지');
+      changeAddress = changeAddress.replace('h', '에이치');
+      changeAddress = changeAddress.replace('i', '아이');
+      changeAddress = changeAddress.replace('j', '제이');
+      changeAddress = changeAddress.replace('k', '케이');
+      changeAddress = changeAddress.replace('l', '엘');
+      changeAddress = changeAddress.replace('m', '엠');
+      changeAddress = changeAddress.replace('n', '엔');
+      changeAddress = changeAddress.replace('o', '오');
+      changeAddress = changeAddress.replace('p', '피');
 
       const uniqueNoOptions = {
         Address: changeAddress,
@@ -328,6 +347,188 @@ export class CertifiedCopyService {
       }
     } catch (error) {
       this.utilsService.endProcess('등기부등본 발급');
+      console.error('Error:', error.message);
+      return {
+        Status: 500,
+        Message: 'Internal Server Error',
+        Error: error.message,
+      };
+    }
+  }
+
+  async createFileBuildingCopy(
+    uniqueId: any,
+    address: string,
+    userId: string,
+  ): Promise<any> {
+    this.utilsService.startProcess('등기부등본 발급');
+
+    try {
+      const aesIv = Buffer.alloc(16, 0);
+      const aesKey = Crypto.randomBytes(16);
+      const uniqueNo = uniqueId.replace(/-/g, '');
+      const headers = await this.tilkoApiService.getCommonHeader(aesKey);
+
+      console.time('certifiedInfo');
+      const certifiedInfoOptions = await this.makeCertifiedInfoOption(
+        aesKey,
+        aesIv,
+        uniqueNo,
+      );
+      const certifiedInfo = await axios
+        .post(this.CERTIFIED_INFO_URL, certifiedInfoOptions, { headers })
+        .then((response) => response.data)
+        .catch((e) => {
+          console.timeEnd('certifiedInfo');
+          console.log(e);
+        });
+      console.timeEnd('certifiedInfo');
+
+      if (!certifiedInfo.TransactionKey) {
+        this.utilsService.endProcess('등기부등본 발급');
+
+        return {
+          Status: certifiedInfo.Status,
+          Message: certifiedInfo.Message,
+          ErrorCode: certifiedInfo.ErrorCode,
+          TargetCode: certifiedInfo.TargetCode,
+          TargetMessage: certifiedInfo.TargetMessage,
+        };
+      }
+
+      // PDF 생성 API
+      console.time('pdfRespData');
+      const makePdfOptions = {
+        TransactionKey: certifiedInfo.TransactionKey, // 등본발급 시 리턴받은 트랜잭션 키 (GUID)
+        IsSummary: 'Y', // 요약 데이터 표시 여부 (Y/N 빈 값 또는 기본값 Y인 경우)
+      };
+      const pdfRespData = await axios
+        .post(this.MAKE_PDF_URL, makePdfOptions, {
+          headers,
+        })
+        .then((response) => response.data)
+        .catch((e) => {
+          console.timeEnd('pdfRespData');
+          console.log(e);
+        });
+      console.timeEnd('pdfRespData');
+
+      const currentHour = await this.utilsService.getCurrentHour();
+      console.log('현재 시간: ', currentHour);
+      // 바이너리 파일 저장
+      const binaryBuffer = Buffer.from(pdfRespData.Message, 'base64');
+      const filePath = `odocs${
+        userId ? '/' + userId : ''
+      }/${address}/certified-copy`;
+
+      console.log('다음 경로에 파일을 저장합니다. ', filePath);
+      // 경로가 존재하지 않으면 생성
+      const fileName = await this.utilsService.saveToPdfWithMin(
+        filePath,
+        address,
+        binaryBuffer,
+      );
+
+      this.utilsService.endProcess('등기부등본 발급');
+      return {
+        Status: 200,
+        Message: '파일이 생성되었습니다.',
+        TargetMessage: '파일이 생성되었습니다.',
+        FileName: fileName, // 파일의 경로를 포함
+      };
+    } catch (error) {
+      this.utilsService.endProcess('등기부등본 발급');
+      console.error('Error:', error.message);
+      return {
+        Status: 500,
+        Message: 'Internal Server Error',
+        Error: error.message,
+      };
+    }
+  }
+
+  async createFileLandCopy(
+    uniqueId: any,
+    address: string,
+    userId: string,
+  ): Promise<any> {
+    this.utilsService.startProcess('토지등기 발급');
+
+    try {
+      const aesIv = Buffer.alloc(16, 0);
+      const aesKey = Crypto.randomBytes(16);
+      const uniqueNo = uniqueId.replace(/-/g, '');
+      const headers = await this.tilkoApiService.getCommonHeader(aesKey);
+
+      console.time('certifiedInfo');
+      const certifiedInfoOptions = await this.makeCertifiedInfoOption(
+        aesKey,
+        aesIv,
+        uniqueNo,
+      );
+      const certifiedInfo = await axios
+        .post(this.CERTIFIED_INFO_URL, certifiedInfoOptions, { headers })
+        .then((response) => response.data)
+        .catch((e) => {
+          console.timeEnd('certifiedInfo');
+          console.log(e);
+        });
+      console.timeEnd('certifiedInfo');
+
+      if (!certifiedInfo.TransactionKey) {
+        this.utilsService.endProcess('토지등기 발급');
+
+        return {
+          Status: certifiedInfo.Status,
+          Message: certifiedInfo.Message,
+          ErrorCode: certifiedInfo.ErrorCode,
+          TargetCode: certifiedInfo.TargetCode,
+          TargetMessage: certifiedInfo.TargetMessage,
+        };
+      }
+
+      // PDF 생성 API
+      console.time('pdfRespData');
+      const makePdfOptions = {
+        TransactionKey: certifiedInfo.TransactionKey, // 등본발급 시 리턴받은 트랜잭션 키 (GUID)
+        IsSummary: 'Y', // 요약 데이터 표시 여부 (Y/N 빈 값 또는 기본값 Y인 경우)
+      };
+      const pdfRespData = await axios
+        .post(this.MAKE_PDF_URL, makePdfOptions, {
+          headers,
+        })
+        .then((response) => response.data)
+        .catch((e) => {
+          console.timeEnd('pdfRespData');
+          console.log(e);
+        });
+      console.timeEnd('pdfRespData');
+
+      const currentHour = await this.utilsService.getCurrentHour();
+      console.log('현재 시간: ', currentHour);
+      // 바이너리 파일 저장
+      const binaryBuffer = Buffer.from(pdfRespData.Message, 'base64');
+      const filePath = `odocs${
+        userId ? '/' + userId : ''
+      }/${address}/land-copy`;
+
+      console.log('다음 경로에 파일을 저장합니다. ', filePath);
+      // 경로가 존재하지 않으면 생성
+      const fileName = await this.utilsService.saveToPdfWithMin(
+        filePath,
+        address,
+        binaryBuffer,
+      );
+
+      this.utilsService.endProcess('토지등기 발급');
+      return {
+        Status: 200,
+        Message: '파일이 생성되었습니다.',
+        TargetMessage: '파일이 생성되었습니다.',
+        FileName: fileName, // 파일의 경로를 포함
+      };
+    } catch (error) {
+      this.utilsService.endProcess('토지등기 발급');
       console.error('Error:', error.message);
       return {
         Status: 500,

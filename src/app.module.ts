@@ -6,9 +6,9 @@ import { LandledgerModule } from './landledger/landledger.module';
 import { CertifiedCopyModule } from './certified-copy/certified-copy.module';
 import { BldRgstModule } from './bld-rgst/bld-rgst.module';
 import { TilkoApiService } from './tilko-api/tilko-api.service';
+import { ApiIrosModule } from './api-iros/api-iros.module';
 import { UtilsService } from './utils/utils.service';
 import { UtilsController } from './utils/utils.controller';
-import { UtilsModule } from './utils/utils.module';
 
 @Module({
   imports: [
@@ -20,7 +20,7 @@ import { UtilsModule } from './utils/utils.module';
     LandledgerModule,
     CertifiedCopyModule,
     BldRgstModule,
-    UtilsModule,
+    ApiIrosModule,
   ],
   controllers: [AppController, UtilsController],
   providers: [TilkoApiService, UtilsService],

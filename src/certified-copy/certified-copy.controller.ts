@@ -5,6 +5,45 @@ import { CertifiedCopyService } from './certified-copy.service';
 export class CertifiedCopyController {
   constructor(private readonly certifiedCopyService: CertifiedCopyService) {}
 
+  /**
+   * V2 - use uniqueNo to get Iros Search Result
+   */
+  @Get('bld-unique-no')
+  async createFileBuildingCopy(
+    @Query('uniqueId') uniqueId: string,
+    @Query('address') address: string,
+    @Query('userId') userId: string,
+  ): Promise<any> {
+    try {
+      console.log(uniqueId, address, userId);
+      return await this.certifiedCopyService.createFileBuildingCopy(
+        uniqueId,
+        address,
+        userId,
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  @Get('land-unique-no')
+  async createFileLandCopy(
+    @Query('uniqueId') uniqueId: string,
+    @Query('address') address: string,
+    @Query('userId') userId: string,
+  ): Promise<any> {
+    try {
+      console.log(uniqueId, address, userId);
+      return await this.certifiedCopyService.createFileLandCopy(
+        uniqueId,
+        address,
+        userId,
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   @Get()
   async getCertifiedCopy(
     @Query('roadAddress') roadAddress: string,
@@ -63,22 +102,42 @@ export class CertifiedCopyController {
   ): Promise<any> {
     try {
       roadAddress = roadAddress.trim().replace(/\s/g, '_').replace(/__/g, '_');
-      if (kindClsFlag === '3') {
-        const directory = `odocs${userId ? '/' + userId : ''}/${roadAddress}_${
-          dongName || '0'
-        }_${hoName || '0'}/land-copy`;
-        return await this.certifiedCopyService.downloadLandCopy(
-          directory,
-          response,
-        );
+      if (!dongName && !hoName) {
+        if (kindClsFlag === '3') {
+          const directory = `odocs${
+            userId ? '/' + userId : ''
+          }/${roadAddress}/land-copy`;
+          return await this.certifiedCopyService.downloadLandCopy(
+            directory,
+            response,
+          );
+        } else {
+          const directory = `odocs${
+            userId ? '/' + userId : ''
+          }/${roadAddress}/certified-copy`;
+          return await this.certifiedCopyService.downloadCertifiedCopy(
+            directory,
+            response,
+          );
+        }
       } else {
-        const directory = `odocs${userId ? '/' + userId : ''}/${roadAddress}_${
-          dongName || '0'
-        }_${hoName || '0'}/certified-copy`;
-        return await this.certifiedCopyService.downloadCertifiedCopy(
-          directory,
-          response,
-        );
+        if (kindClsFlag === '3') {
+          const directory = `odocs${
+            userId ? '/' + userId : ''
+          }/${roadAddress}_${dongName || '0'}_${hoName || '0'}/land-copy`;
+          return await this.certifiedCopyService.downloadLandCopy(
+            directory,
+            response,
+          );
+        } else {
+          const directory = `odocs${
+            userId ? '/' + userId : ''
+          }/${roadAddress}_${dongName || '0'}_${hoName || '0'}/certified-copy`;
+          return await this.certifiedCopyService.downloadCertifiedCopy(
+            directory,
+            response,
+          );
+        }
       }
     } catch (e) {
       console.log(e);

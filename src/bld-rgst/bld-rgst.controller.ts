@@ -29,6 +29,24 @@ export class BldRgstController {
     }
   }
 
+  @Get('bld-rgst-no')
+  async createFileLandCopy(
+    @Query('addressType') addressType: string,
+    @Query('address') address: string,
+    @Query('userId') userId: string,
+  ): Promise<any> {
+    try {
+      console.log(addressType, address, userId);
+      return await this.bldRgstService.createBldRgst(
+        addressType,
+        address,
+        userId,
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   @Get('download')
   async downloadBldRgst(
     @Query('roadAddress') roadAddress: string,
@@ -39,9 +57,16 @@ export class BldRgstController {
   ): Promise<any> {
     try {
       roadAddress = roadAddress.trim().replace(/\s/g, '_').replace(/__/g, '_');
-      const directory = `odocs${userId ? '/' + userId : ''}/${roadAddress}_${
-        dongName || '0'
-      }_${hoName || '0'}/bld-rgst`;
+      let directory = '';
+      if (!dongName && !hoName) {
+        directory = `odocs${
+          userId ? '/' + userId : ''
+        }/${roadAddress}/bld-rgst`;
+      } else {
+        directory = `odocs${userId ? '/' + userId : ''}/${roadAddress}_${
+          dongName || '0'
+        }_${hoName || '0'}/bld-rgst`;
+      }
       return await this.bldRgstService.downloadBldRgst(directory, response);
     } catch (e) {
       console.log(e);
